@@ -2,7 +2,7 @@
 
 # NOTE - installer overwrites standalone monerod symlink from https://github.com/alphaaurigae/crypto-currency_install-scripts/blob/master/monero/monero-project/monero/monerod-install-ubuntu_18.04_bionic_beaver.sh
 
-# monerod/monero-gui SET| install/setup | 18.04 bionic_beaver
+# monerod/monero-wallet-gui SET| install/setup | 18.04 bionic_beaver
 # https://github.com/monero-project/monero-gui
 
 # The script installs the GCC / G++ alternatives set and sets latest GCC / G++ 8 as default after the installation

@@ -201,9 +201,9 @@ sudo update-alternatives --set cc /usr/bin/gcc
 sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ $DEFAULT
 sudo update-alternatives --set c++ /usr/bin/g++
 
-yes "1" | sudo update-alternatives --config gcc 
+yes "4" | sudo update-alternatives --config gcc 
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
-yes "1" | sudo update-alternatives --config g++ 
+yes "4" | sudo update-alternatives --config g++ 
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
 gcc -v
 g++ -v
