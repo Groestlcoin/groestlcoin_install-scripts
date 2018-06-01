@@ -3,9 +3,10 @@
 # bitcoin-core | install/setup | 18.04 bionic_beaver
 # https://github.com/bitcoin/bitcoin
 
-sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
-
 BRANCH=master
+#BRANCHTAG= # edit && uncomment in GITCLONEFUNC | git fetch --all --tags && #git checkout tags/$BRANCHTAG -b master
+
+sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
 GITREPOROOT=/opt/Crypto_Coin-Clients/bitcoin/bitcoin/bitcoin
 GITCLONEDIR=/opt/Crypto_Coin-Clients/bitcoin/bitcoin
 GITREPO=https://github.com/bitcoin/bitcoin.git
@@ -40,6 +41,8 @@ GITCLONEFUNC () {
 mkdir -p $GITCLONEDIR
 cd $GITCLONEDIR
 git clone -b $BRANCH $GITREPO
+#git fetch --all --tags
+#git checkout tags/$BRANCHTAG -b $BRANCH
 cd $GITREPOROOT
 }
 # END git clone 
@@ -198,9 +201,9 @@ sudo update-alternatives --set cc /usr/bin/gcc
 sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ $DEFAULT
 sudo update-alternatives --set c++ /usr/bin/g++
 
-yes "4" | sudo update-alternatives --config gcc 
+yes "1" | sudo update-alternatives --config gcc 
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
-yes "4" | sudo update-alternatives --config g++ 
+yes "1" | sudo update-alternatives --config g++ 
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
 gcc -v
 g++ -v

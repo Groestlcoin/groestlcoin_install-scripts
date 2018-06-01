@@ -3,11 +3,12 @@
 # litecoin-core | install/setup | 18.04 bionic_beaver
 # https://github.com/litecoin-project/litecoin
 
-sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
-
 BRANCH=master
+#BRANCHTAG= # edit && uncomment in GITCLONEFUNC | git fetch --all --tags && #git checkout tags/$BRANCHTAG -b master
+
+sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
 GITREPOROOT=/opt/Crypto_Coin-Clients/litecoin/litecoin-project/litecoin
-GITCLONEDIR=/opt/Crypto_Coin-Clients/litecoin-project/litecoin
+GITCLONEDIR=/opt/Crypto_Coin-Clients/litecoin/litecoin-project
 GITREPO=https://github.com/litecoin-project/litecoin.git
 MAKEJ=2 # make threads
 
@@ -40,6 +41,8 @@ GITCLONEFUNC () {
 mkdir -p $GITCLONEDIR
 cd $GITCLONEDIR
 git clone -b $BRANCH $GITREPO
+#git fetch --all --tags
+#git checkout tags/$BRANCHTAG -b $BRANCH
 cd $GITREPOROOT
 }
 # END git clone 

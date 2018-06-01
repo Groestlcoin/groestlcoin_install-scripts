@@ -1,30 +1,35 @@
 #!/bin/bash
 
-# monerod | install/setup | 18.04 bionic_beaver
-# https://github.com/monero-project/monero
+# NOTE - installer overwrites standalone monerod symlink from https://github.com/alphaaurigae/crypto-currency_install-scripts/blob/master/monero/monero-project/monero/monerod-install-ubuntu_18.04_bionic_beaver.sh
+
+# monerod/monero-gui SET| install/setup | 18.04 bionic_beaver
+# https://github.com/monero-project/monero-gui
 
 # The script installs the GCC / G++ alternatives set and sets latest GCC / G++ 8 as default after the installation
 # to change edit GCCDEFAULT
 
 # GCC / G++ 8 build fail
-# /opt/Crypto_Coin-Clients/monero/monero-project/monero/src/cryptonote_basic/account.cpp:160:34: error: ‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘using secret_key = struct tools::scrubbed<crypto::ec_scalar>’ {aka ‘struct tools::scrubbed<crypto::ec_scalar>’}; use assignment or value-initialization instead [-Werror=class-memaccess]
+# /opt/Crypto_Coin-Clients/monero/monero-project/monero-gui/src/cryptonote_basic/account.cpp:160:34: error: ‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘using secret_key = struct tools::scrubbed<crypto::ec_scalar>’ {aka ‘struct tools::scrubbed<crypto::ec_scalar>’}; use assignment or value-initialization instead [-Werror=class-memaccess]
 #      memset(&fake, 0, sizeof(fake));
 
 # using 7 instead see
 
+sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
+
 BRANCH=master 
 #BRANCHTAG= # edit && uncomment in GITCLONEFUNC | git fetch --all --tags && #git checkout tags/$BRANCHTAG -b master
 
-sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
-# to modify target path also edit "ADDPATH" functin ~ line 90
-GITREPOROOT=/opt/Crypto_Coin-Clients/monero/monero-project/monero
+# to modify target path also edit "ADDPATH" function ~ line 90
+GITREPOROOT=/opt/Crypto_Coin-Clients/monero/monero-project/monero-gui
 GITCLONEDIR=/opt/Crypto_Coin-Clients/monero/monero-project
-GITREPO=https://github.com/monero-project/monero
+GITREPO=https://github.com/monero-project/monero-gui
 MAKEJ=2 # make threads
 
 # symlink
 EXECUTEABLE1=monerod
 EXECUTEABLE2=monerod
+EXECUTEABLE3=start-gui.sh
+EXECUTEABLE4=monero-wallet-gui
 BINDIR=/usr/local/bin
 
 # font
@@ -75,8 +80,26 @@ libreadline6-dev
 libldns-dev
 libexpat1-dev
 libgtest-dev
+libzbar-dev
 "
+LIBS_QT5_DEPS="libqt5gui5
+libqt5core5a
+libqt5dbus5
+qtbase5-dev
+qt5-default
+qtdeclarative5-dev
+qml-module-qtquick-controls
+qml-module-qtquick-controls2
+qml-module-qtquick-dialogs
+qml-module-qtquick-xmllistmodel
+qml-module-qt-labs-settings
+qml-module-qt-labs-folderlistmodel
+qttools5-dev
+qttools5-dev-tools
+qtmultimedia5-dev
+qml-module-qtmultimedia
 
+"
 DEPS_MAIN="cmake
 build-essential
 pkg-config
@@ -94,6 +117,11 @@ done
 # On Debian/Ubuntu libgtest-dev only includes sources and headers. You must build the library binary manually. This can be done with the following command
 cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libg* /usr/lib/
 
+echo $LIBS_QT5_DEPS | while read libsqt5deps
+do
+   sudo apt-get install -y $libsqt5deps
+done
+
 echo $DEPS_MAIN | while read depsmain
 do
    sudo apt-get install -y $depsmain
@@ -104,7 +132,10 @@ sudo ldconfig
 }
 
 BUILD () {
-make -j $MAKEJ
+# make -j $MAKEJ
+./build.sh
+cd build
+make deploy
 }
 
 CHECKINST () {
@@ -113,17 +144,25 @@ echo "${bold}404 ERROR: monerod exec. not found in $GITREPOROOT/build/release/bi
 else
 echo "${bold}Congrats! monerod exec found in $GITREPOROOT/build/release/bin/monerod!${normal}"
 fi
+
+if [ ! -f $GITREPOROOT/build/release/bin/monero-wallet-gui ]; then
+echo "${bold}404 ERROR: monero-wallet-gui exec. not found in $GITREPOROOT/build/release/bin/monero-wallet-gui, something went wrong - check the console output!${normal}"
+else
+echo "${bold}Congrats! monero-wallet-gui exec found in $GITREPOROOT/build/release/bin/monero-wallet-gui!${normal}"
+fi
 }
 
 ADDPATH () {
-sed -i -e 's#PATH="$PATH:/opt/Crypto_Coin-Clients/monero/monero-project/monero/build/release/bin"##g' .profile
-echo 'PATH="$PATH:/opt/Crypto_Coin-Clients/monero/monero-project/monero/build/release/bin"' >> .profile
+sed -i -e 's#PATH="$PATH:/opt/Crypto_Coin-Clients/monero/monero-project/monero-gui/build/release/bin"##g' .profile
+echo 'PATH="$PATH:/opt/Crypto_Coin-Clients/monero/monero-project/monero-gui/build/release/bin"' >> .profile
 source .profile
 }
 
 SYMLINK () {
 sudo rm -f $BINDIR/$EXECUTEABLE2
 sudo ln -s $GITREPOROOT/build/release/bin/$EXECUTEABLE1 $BINDIR/$EXECUTEABLE2
+sudo rm -f $BINDIR/$EXECUTEABLE4
+sudo ln -s $GITREPOROOT/build/release/bin/$EXECUTEABLE3 $BINDIR/$EXECUTEABLE4
 }
 
 UPDATEALTERNATIVEGCC () {
@@ -187,12 +226,12 @@ g++ -v
 }
 
 ECHOCONF () {
-mkdir -p /home/$USER/.monero
-monerod --help > /home/$USER/.monero/monerod.conf_example
+mkdir -p /home/$USER/.bitmonero
+monerod --help > /home/$USER/.bitmonero/monerod.conf_example
 }
 
 
-if [ ! -f $GITREPOROOT/build/release/bin/monerod ]; then
+if [ ! -f $GITREPOROOT/build/release/bin/monero-wallet-gui ]; then
 INSTDEPS # install dependencies
 GITCLONEFUNC # git-clone
 GITSBMDLINIT # submodules init
