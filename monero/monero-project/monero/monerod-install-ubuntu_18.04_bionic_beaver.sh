@@ -178,9 +178,9 @@ g++ -v
 }
 
 GCCDEFAULT () {
-yes "0" | sudo update-alternatives --config gcc 
+yes "4" | sudo update-alternatives --config gcc 
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
-yes "0" | sudo update-alternatives --config g++ 
+yes "4" | sudo update-alternatives --config g++ 
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
 gcc -v
 g++ -v
