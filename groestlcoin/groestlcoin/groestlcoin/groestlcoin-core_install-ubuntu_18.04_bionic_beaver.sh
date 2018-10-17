@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# litecoin-core | install/setup | 18.04 bionic_beaver
-# https://github.com/litecoin-project/litecoin
+# groestlcoin-core | install/setup | 18.04 bionic_beaver
+# https://github.com/groestlcoin/groestlcoin
 
 BRANCH=master
 #BRANCHTAG= # edit && uncomment in GITCLONEFUNC | git fetch --all --tags && #git checkout tags/$BRANCHTAG -b master
 
 sudo chown -R $USER:$USER /opt # chown target dir for $GITREPOROOT
-GITREPOROOT=/opt/Crypto_Coin-Clients/litecoin/litecoin-project/litecoin
-GITCLONEDIR=/opt/Crypto_Coin-Clients/litecoin/litecoin-project
-GITREPO=https://github.com/litecoin-project/litecoin.git
+GITREPOROOT=/opt/groestlcoin/groestlcoin/groestlcoin
+GITCLONEDIR=/opt/groestlcoin/groestlcoin
+GITREPO=https://github.com/groestlcoin/groestlcoin.git
 MAKEJ=2 # make threads
 
 BINDIR=/usr/local/bin
@@ -36,7 +36,7 @@ GITSBMDLINIT () {
 }
 # END init submodules
 
-# git clone 
+# git clone
 GITCLONEFUNC () {
 mkdir -p $GITCLONEDIR
 cd $GITCLONEDIR
@@ -45,7 +45,7 @@ git clone -b $BRANCH $GITREPO
 #git checkout tags/$BRANCHTAG -b $BRANCH
 cd $GITREPOROOT
 }
-# END git clone 
+# END git clone
 
 INSTDEPS () {
 sudo apt-get update
@@ -64,6 +64,9 @@ libzmq3-dev
 libminiupnpc-dev
 libevent-dev
 libdb++-dev
+libdb5.3
+libdb5.3-dev
+libdb5.3++-dev
 "
 
 LIBS_QT5_DEPS="libqt5gui5
@@ -73,18 +76,25 @@ qttools5-dev
 qttools5-dev-tools
 "
 
-DEPS_MAIN="protobuf-compiler 
+DEPS_MAIN="protobuf-compiler
 software-properties-common
-build-essential 
-libtool 
-autotools-dev 
-automake 
-pkg-config 
-libssl-dev 
-libevent-dev 
+build-essential
+libtool
+autotools-dev
+automake
+pkg-config
+libssl-dev
+libevent-dev
 bsdmainutils
 python3
 git
+ntp
+make
+autoconf
+cpp
+ngrep
+iftop
+sysstat
 "
 sudo apt-get update
 sudo apt-get upgrade
@@ -108,25 +118,6 @@ sudo updatedb
 sudo ldconfig
 }
 
-INSTBDB () {
-# Pick some path to install BDB to, here we create a directory within the litecoin directory
-BDB_PREFIX="${GITREPOROOT}/db-4.8.30.NC"
-mkdir -p $BDB_PREFIX
-
-# Fetch the source and verify that it is not tampered with
-wget 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
-echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef  db-4.8.30.NC.tar.gz' | sha256sum -c
-# -> db-4.8.30.NC.tar.gz: OK
-tar -xzvf db-4.8.30.NC.tar.gz
-
-# Build the library and install to our prefix
-cd db-4.8.30.NC/build_unix/
-#  Note: Do a static build so that it can be embedded into the executable, instead of having to find a .so at runtime
-../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
-make install
-#./contrib/install_db4.sh `pwd`
-}
-
 BUILD () {
 cd $GITREPOROOT
 
@@ -134,7 +125,7 @@ cd $GITREPOROOT
 # sed -i -e 's/DEFAULT_MAX_PEER_CONNECTIONS = 125/DEFAULT_MAX_PEER_CONNECTIONS = 1024/g' $GITREPOROOT/src/net.h
 
 ./autogen.sh
-./configure LDFLAGS="-L${BDB_PREFIX}/lib/" CPPFLAGS="-I${BDB_PREFIX}/include/" # (other args...)
+./configure # (other args...)
 #./configure --enable-hardening
 sudo updatedb
 sudo ldconfig
@@ -144,27 +135,27 @@ sudo make install
 }
 
 CHECKINST () {
-if [ ! -f $GITREPOROOT/src/litecoind ]; then
-echo "${bold}404 ERROR: litecoind exec. not found in $GITREPOROOT/src/litecoind, something went wrong - check the console output!${normal}"
+if [ ! -f $GITREPOROOT/src/groestlcoind ]; then
+echo "${bold}404 ERROR: groestlcoind exec. not found in $GITREPOROOT/src/groestlcoind, something went wrong - check the console output!${normal}"
 else
-echo "${bold}Congrats! litecoind exec found in $GITREPOROOT/src/litecoind!${normal}"
+echo "${bold}Congrats! groestlcoind exec found in $GITREPOROOT/src/groestlcoind!${normal}"
 fi
 
-if [ ! -f $GITREPOROOT/src/qt/litecoin-qt ]; then
-echo "${bold}404 ERROR: litecoin-qt exec. not found in $GITREPOROOT/src/qt/litecoin-qt, something went wrong - check the console output!${normal}"
+if [ ! -f $GITREPOROOT/src/qt/bitcoin-qt ]; then
+echo "${bold}404 ERROR: groestlcoin-qt exec. not found in $GITREPOROOT/src/qt/groestlcoin-qt, something went wrong - check the console output!${normal}"
 else
-echo "${bold}Congrats! litecoin-qt exec found in $GITREPOROOT/src/litecoin-qt!${normal}"
+echo "${bold}Congrats! groestlcoin-qt exec found in $GITREPOROOT/src/groestlcoin-qt!${normal}"
 fi
 }
 
-#### 
+####
 UPDATEALTERNATIVEGCC () {
 
 # 18.04 bionic-beaver
-# default 14.5.18 - gcc version 7.3.0 (Ubuntu 7.3.0-16ubuntu3) 
+# default 14.5.18 - gcc version 7.3.0 (Ubuntu 7.3.0-16ubuntu3)
 # edit line 44 && 46 to change default version | yes "4" << version 4 as in the variables is gcc / g++ 7
 
-sudo apt-get update 
+sudo apt-get update
 sudo apt-get upgrade
 
 DEFAULT=40 # 40 for $VERSION4 default gcc/g++ version , 10 - X
@@ -201,34 +192,33 @@ sudo update-alternatives --set cc /usr/bin/gcc
 sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ $DEFAULT
 sudo update-alternatives --set c++ /usr/bin/g++
 
-yes "4" | sudo update-alternatives --config gcc 
+yes "4" | sudo update-alternatives --config gcc
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
-yes "4" | sudo update-alternatives --config g++ 
+yes "4" | sudo update-alternatives --config g++
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
 gcc -v
 g++ -v
 }
 
 GCCDEFAULT () {
-yes "4" | sudo update-alternatives --config gcc 
+yes "4" | sudo update-alternatives --config gcc
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
-yes "4" | sudo update-alternatives --config g++ 
+yes "4" | sudo update-alternatives --config g++
 # expect "Press <enter> to keep the current choice[*], or type selection number:" { send "\n" }
 gcc -v
 g++ -v
 }
 
 ECHOCONF () {
-mkdir -p /home/$USER/.bitcoin
-litecoind --help > /home/$USER/.litecoin-project/litecoin.conf_example
+mkdir -p /home/$USER/.groestlcoin
+groestlcoind --help > /home/$USER/.groestlcoin/groestlcoin.conf_example
 }
 
-if [ ! -f $GITREPOROOT/src/litecoind ]; then
+if [ ! -f $GITREPOROOT/src/groestlcoind ]; then
 INSTDEPS
 GITCLONEFUNC
 GITSBMDLINIT
 UPDATEALTERNATIVEGCC
-INSTBDB
 BUILD
 GCCDEFAULT
 CHECKINST
@@ -239,7 +229,6 @@ else
 
 GITRESET
 UPDATEALTERNATIVEGCC
-INSTBDB
 BUILD
 GCCDEFAULT
 CHECKINST

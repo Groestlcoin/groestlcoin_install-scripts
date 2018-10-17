@@ -1,1 +1,1 @@
-# crypto-currency core client setup scripts
+# Groestlcoin core client setup script
